@@ -43,10 +43,22 @@ class FeedProductionRepository : IFeedProductionRepository
             using var connection = _dbConnectionFactory.CreateConnection();
             connection.Open();
             DateTime yesterday = DateTime.Today.AddDays(-1);
-            const string sql = @"SELECT SUM(Cantidad) as Total 
-                FROM AGQSLAPP.dbo.NUAMVWProduAlimento WHERE FIni = @FIni";
-            var parameters = new { FIni = yesterday.ToString("yyyyMMdd") };
-            var result = await connection.QuerySingleOrDefaultAsync<CurrentErp>(sql, parameters);
+            var sql = @"SELECT Produccion AS Total 
+                FROM AUGIVW_ProdAlimento WHERE Fecha BETWEEN @Fecha AND @Fecha";
+            var parameters = new { Fecha = yesterday.ToString("yyyyMMdd") };
+            var resultAugi = await connection.QuerySingleOrDefaultAsync<CurrentErp>(sql, parameters);
+
+            sql = @"SELECT (
+                select  ISNULL(SUM(Peso_Real ),0)  
+                from [192.168.3.99\RX3].RXTresL1.erp.VW_CONSUMOS_L1    
+                WHERE    CONVERT(VARCHAR(8), Hr_iniproc, 112) between @Fecha and  @Fecha )
+                +
+                (select  ISNULL(SUM(Peso_Real ),0)  
+                from  [192.168.3.99\RX3].RXTresL1.erp.VW_CONSUMOS_L2    
+                WHERE    CONVERT(VARCHAR(8), Hr_iniproc, 112) between @Fecha and  @Fecha)
+                as Total";
+            var resultIdeas = await connection.QuerySingleOrDefaultAsync<CurrentErp>(sql, parameters);
+            var result = new CurrentErp { Total = (resultAugi?.Total ?? 0) + (resultIdeas?.Total ?? 0) };
             return result ?? new CurrentErp { Total = 0 };
         }
         catch (Exception ex)
