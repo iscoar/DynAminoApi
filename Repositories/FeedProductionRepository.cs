@@ -1,5 +1,4 @@
 using Dapper;
-using System.Data;
 using DynAmino.Data;
 using DynAmino.Dtos.FeedProduction;
 
@@ -42,22 +41,15 @@ class FeedProductionRepository : IFeedProductionRepository
         {
             using var connection = _dbConnectionFactory.CreateConnection();
             connection.Open();
+            connection.Execute("SET ARITHABORT ON;");
             DateTime yesterday = DateTime.Today.AddDays(-1);
             var sql = @"SELECT Produccion AS Total 
-                FROM AUGIVW_ProdAlimento WHERE Fecha BETWEEN @Fecha AND @Fecha";
+                FROM AUGIVW_ProdAlimento WHERE Fecha = @Fecha";
             var parameters = new { Fecha = yesterday.ToString("yyyyMMdd") };
             var resultAugi = await connection.QuerySingleOrDefaultAsync<CurrentErp>(sql, parameters);
 
-            sql = @"SELECT (
-                select  ISNULL(SUM(Peso_Real ),0)  
-                from [192.168.3.99\RX3].RXTresL1.erp.VW_CONSUMOS_L1    
-                WHERE    CONVERT(VARCHAR(8), Hr_iniproc, 112) between @Fecha and  @Fecha )
-                +
-                (select  ISNULL(SUM(Peso_Real ),0)  
-                from  [192.168.3.99\RX3].RXTresL1.erp.VW_CONSUMOS_L2    
-                WHERE    CONVERT(VARCHAR(8), Hr_iniproc, 112) between @Fecha and  @Fecha)
-                as Total";
-            var resultIdeas = await connection.QuerySingleOrDefaultAsync<CurrentErp>(sql, parameters);
+            sql = @"SELECT * FROM IDEAFN_TotalProdAlimento(@Fecha, @Fecha);";
+            var resultIdeas = await connection.QuerySingleOrDefaultAsync<CurrentErp>(sql, parameters);       
             var result = new CurrentErp { Total = (resultAugi?.Total ?? 0) + (resultIdeas?.Total ?? 0) };
             return result ?? new CurrentErp { Total = 0 };
         }
