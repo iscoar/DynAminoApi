@@ -21,7 +21,7 @@ public class FormulaRepository : IFormulaRepository
         {
             using var connection = _dbConnectionFactory.CreateConnection();
             connection.Open();
-            var result = await connection.QuerySingleOrDefaultAsync<NewFormulas>(@"SELECT COUNT(F.COD_PT) AS Count
+            var result = await connection.QuerySingleOrDefaultAsync<NewFormulas>(@"SELECT COUNT(DISTINCT F.COD_PT) AS Count
                 FROM IDEAVW_Formulas AS F
                 WHERE NOT EXISTS (
                     SELECT 1 
