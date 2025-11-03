@@ -49,7 +49,7 @@ class FeedProductionRepository : IFeedProductionRepository
             var resultAugi = await connection.QuerySingleOrDefaultAsync<CurrentErp>(sql, parameters);
 
             sql = @"SELECT * FROM IDEAFN_TotalProdAlimento(@Fecha, @Fecha);";
-            var resultIdeas = await connection.QuerySingleOrDefaultAsync<CurrentErp>(sql, parameters);       
+            var resultIdeas = await connection.QuerySingleOrDefaultAsync<CurrentErp>(sql, parameters);
             var result = new CurrentErp { Total = (resultAugi?.Total ?? 0) + (resultIdeas?.Total ?? 0) };
             return result ?? new CurrentErp { Total = 0 };
         }

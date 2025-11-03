@@ -109,7 +109,7 @@ namespace DynAmino.Controllers
                     PendingSalesOrders: pendingSalesOrders.Count,
                     TotalProduction: Math.Round(webProduction.Total, 2),
                     TotalProductionErp: Math.Round(erpProduction.Total, 2)
-                );  
+                );
 
                 return Ok(dashboardData);
             }
