@@ -21,16 +21,19 @@ public class FormulaRepository : IFormulaRepository
         {
             using var connection = _dbConnectionFactory.CreateConnection();
             connection.Open();
-            var result = await connection.QuerySingleOrDefaultAsync<NewFormulas>(@"SELECT COUNT(DISTINCT F.COD_PT) AS Count
-                FROM IDEAVW_Formulas AS F
-                WHERE NOT EXISTS (
-                    SELECT 1 
-                    FROM NuAmVersionFormulaDOC AS FI 
-                    WHERE LTRIM(RTRIM(FI.feedFormulaNo)) = LTRIM(RTRIM(F.COD_PT COLLATE Modern_Spanish_CI_AS))
-                        AND FI.versionNo = F.NUMERO_VERSION
-                        AND FI.versionDate = F.FECHA_VERSION
-                )
-                GROUP BY F.COD_PT, F.VERSION, F.FECHA_VERSION, F.NUMERO_VERSION");
+            var result = await connection.QuerySingleOrDefaultAsync<NewFormulas>(@"SELECT COUNT(*) AS Count
+                FROM (
+                    SELECT F.COD_PT
+                    FROM IDEAVW_Formulas AS F
+                    WHERE NOT EXISTS (
+                        SELECT 1 
+                        FROM NuAmVersionFormulaDOC AS FI 
+                        WHERE LTRIM(RTRIM(FI.feedFormulaNo)) = LTRIM(RTRIM(F.COD_PT COLLATE Modern_Spanish_CI_AS))
+                            AND FI.versionNo = F.NUMERO_VERSION
+                            AND FI.versionDate = F.FECHA_VERSION
+                    )
+                    GROUP BY F.COD_PT, F.VERSION, F.FECHA_VERSION, F.NUMERO_VERSION
+                ) AS Sub");
             return result ?? new NewFormulas { Count = 0 };
         }
         catch (Exception ex)
