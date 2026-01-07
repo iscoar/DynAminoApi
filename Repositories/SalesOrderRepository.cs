@@ -22,10 +22,10 @@ public class SalesOrderRepository : ISalesOrderRepository
             using var connection = _dbConnectionFactory.CreateConnection();
             connection.Open();
             var sql = @"
-                SELECT COUNT(DISTINCT lotecxc) AS Count
+                SELECT COUNT(DISTINCT LoteId) AS Count
                 FROM AGQSLAPP.dbo.NuVenAlimHdr
-                WHERE status = 'RE' AND NOT EXISTS (
-                    SELECT 1 FROM NuAmOrdVtaAlimHdr WHERE salesOrderNo = lotecxc
+                WHERE status <> 'RE' AND NOT EXISTS (
+                    SELECT 1 FROM NuAmOrdVtaAlimHdr WHERE salesOrderNo = LoteId
                 )
             ";
             var result = await connection.QuerySingleOrDefaultAsync<NewOrders>(sql);
