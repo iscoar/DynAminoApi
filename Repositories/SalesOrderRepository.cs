@@ -24,7 +24,7 @@ public class SalesOrderRepository : ISalesOrderRepository
             var sql = @"
                 SELECT COUNT(DISTINCT LoteId) AS Count
                 FROM AGQSLAPP.dbo.NuVenAlimHdr
-                WHERE status <> 'RE' AND NOT EXISTS (
+                WHERE status Not In ('RE', 'CA') AND NOT EXISTS (
                     SELECT 1 FROM NuAmOrdVtaAlimHdr WHERE salesOrderNo = LoteId
                 )
             ";
