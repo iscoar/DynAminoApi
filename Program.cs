@@ -18,7 +18,7 @@ builder.Services.AddHttpClient();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
-builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString!));
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString!).EnableSensitiveDataLogging().LogTo(Console.WriteLine, LogLevel.Information));
 builder.Services.AddSingleton<IDbConnectionFactory>(new SqlServerConnectionFactory(connectionString!));
 builder.Services.AddScoped<IFeedProductionRepository, FeedProductionRepository>();
 builder.Services.AddScoped<IPurchaseOrderRepository, PurchaseOrderRepository>();
@@ -28,6 +28,7 @@ builder.Services.AddScoped<ISalesOrderRepository, SalesOrderRepository>();
 builder.Services.AddScoped<IProcessRepository, ProcessRepository>();
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ILogsRepository, LogsRepository>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

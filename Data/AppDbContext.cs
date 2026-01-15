@@ -14,6 +14,8 @@ public class AppDbContext : DbContext
     public DbSet<PurchaseOrder> PurchaseOrders { get; set; }
     public DbSet<PurchaseOrderDetail> PurchaseOrderDetails { get; set; }
 
+    public DbSet<Log> Logs { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<PurchaseOrderDetail>()
